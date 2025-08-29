@@ -22,7 +22,8 @@ const EmployeesPage: React.FC = () => {
       employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       employee.email.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesGradeLevel =
-      !selectedGradeLevel || employee.gradeLevel === selectedGradeLevel;
+      !selectedGradeLevel ||
+      employee.gradeLevel.toLowerCase() === selectedGradeLevel.toLowerCase();
     return matchesSearch && matchesGradeLevel;
   });
 
@@ -121,7 +122,7 @@ const EmployeesPage: React.FC = () => {
         >
           <option value="">All Grade Levels</option>
           {gradeLevels?.map((gl, index) => (
-            <option key={index} value={gl?.name}>
+            <option key={index} value={gl?.id}>
               {gl?.name}
             </option>
           ))}

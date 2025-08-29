@@ -11,6 +11,7 @@ interface AppStore {
 
   fetchCountries: () => Promise<void>;
   initializeCountries: () => Promise<void>;
+  getStatesByCountry: (country: string) => { value: string; label: string }[];
 }
 
 export const useAppStore = create<AppStore>()(
@@ -21,6 +22,20 @@ export const useAppStore = create<AppStore>()(
       countriesError: null,
 
       setCountries: (countries) => set({ countries }),
+
+      getStatesByCountry: (country) => {
+        const states = get()
+          .countries.filter((c) => c.country === country)
+          .map((c) => c.subcountry)
+          .filter(Boolean) // Remove empty values
+          .filter((state, index, arr) => arr.indexOf(state) === index) // Remove duplicates
+          .sort(); // Sort alphabetically
+
+        return states.map((state) => ({
+          value: state,
+          label: state,
+        }));
+      },
 
       fetchCountries: async () => {
         const { countries } = get();

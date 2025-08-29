@@ -22,7 +22,7 @@ const EmployeeForm: React.FC<{
   onCancel: () => void;
 }> = ({ employee, onSubmit, onCancel }) => {
   const { gradeLevels } = useGradeLevelStore();
-  const { countries } = useAppStore();
+  const { countries, getStatesByCountry } = useAppStore();
 
   const initialValues = {
     name: employee?.name || "",
@@ -58,9 +58,9 @@ const EmployeeForm: React.FC<{
     { value: "Operations", label: "Operations" },
   ];
 
-  const countryOptions = [...new Set(countries.map((c) => c.country))].map(
-    (country) => ({ value: country, label: country })
-  );
+  const countryOptions = [
+    ...new Set(countries.sort().map((c) => c.country)),
+  ].map((country) => ({ value: country, label: country }));
 
   const gradeLevelOptions = gradeLevels.map((gl) => ({
     value: gl.id,
@@ -89,86 +89,92 @@ const EmployeeForm: React.FC<{
           await new Promise((resolve) => setTimeout(resolve, 1500));
 
           await onSubmit(values, helpers);
-
           helpers.setSubmitting(false);
         }}
         enableReinitialize
       >
-        {({ isSubmitting }) => (
-          <Form className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormInput
-                label="Full Name"
-                name="name"
-                placeholder="Enter full name"
-              />
-              <FormInput
-                label="Email Address"
-                name="email"
-                type="email"
-                placeholder="Enter email address"
-              />
-              <FormInput
-                label="Phone Number"
-                name="phone"
-                placeholder="Enter phone number"
-              />
-              <FormSelect
-                label="Country"
-                name="country"
-                options={countryOptions}
-                placeholder="Select country"
-              />
-              <FormInput
-                label="State/Province"
-                name="state"
-                placeholder="Enter state or province"
-              />
-              <FormSelect
-                label="Role"
-                name="role"
-                options={roleOptions}
-                placeholder="Select role"
-              />
-              <FormSelect
-                label="Department"
-                name="department"
-                options={departmentOptions}
-                placeholder="Select department"
-              />
-              <FormSelect
-                label="Grade Level (Optional)"
-                name="gradeLevel"
-                options={gradeLevelOptions}
-                placeholder="Select grade level"
-              />
-            </div>
+        {({ values, isSubmitting }) => {
+          const stateOptions = values.country
+            ? getStatesByCountry(values.country)
+            : [];
 
-            <FormTextarea
-              label="Address"
-              name="address"
-              placeholder="Enter full address"
-              rows={3}
-            />
+          return (
+            <Form className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormInput
+                  label="Full Name"
+                  name="name"
+                  placeholder="Enter full name"
+                />
+                <FormInput
+                  label="Email Address"
+                  name="email"
+                  type="email"
+                  placeholder="Enter email address"
+                />
+                <FormInput
+                  label="Phone Number"
+                  name="phone"
+                  placeholder="Enter phone number"
+                />
+                <FormSelect
+                  label="Country"
+                  name="country"
+                  options={countryOptions}
+                  placeholder="Select country"
+                />
+                <FormSelect
+                  label="State/Province"
+                  name="state"
+                  options={stateOptions}
+                  placeholder="Select state or province"
+                />
+                <FormSelect
+                  label="Role"
+                  name="role"
+                  options={roleOptions}
+                  placeholder="Select role"
+                />
+                <FormSelect
+                  label="Department"
+                  name="department"
+                  options={departmentOptions}
+                  placeholder="Select department"
+                />
+                <FormSelect
+                  label="Grade Level (Optional)"
+                  name="gradeLevel"
+                  options={gradeLevelOptions}
+                  placeholder="Select grade level"
+                />
+              </div>
 
-            <div className="flex items-center justify-end space-x-4 pt-4 border-t border-gray-200">
-              <button
-                type="button"
-                onClick={onCancel}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
-              >
-                <Save size={16} />
-                <span>{isSubmitting ? "Saving..." : "Save Employee"}</span>
-              </button>
-            </div>
-          </Form>
-        )}
+              <FormTextarea
+                label="Address"
+                name="address"
+                placeholder="Enter full address"
+                rows={3}
+              />
+
+              <div className="flex items-center justify-end space-x-4 pt-4 border-t border-gray-200">
+                <button
+                  type="button"
+                  onClick={onCancel}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+                >
+                  <Save size={16} />
+                  <span>{isSubmitting ? "Saving..." : "Save Employee"}</span>
+                </button>
+              </div>
+            </Form>
+          );
+        }}
       </Formik>
     </div>
   );
